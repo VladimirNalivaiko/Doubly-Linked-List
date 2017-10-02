@@ -56,12 +56,23 @@ List.prototype.prepend = function(data){
   return node;
 }
 
-List.prototype.at = function(position){
-  var node = this.head, count = 0;
+List.prototype.checkRange = function(position){
+  if(position > this.length || position < 0){
+    throw new RangeError("Uncorrect position in 'at' function");
+  }
+}
 
-  while(count < position){
-    node = node.next;
-    count++;
+List.prototype.at = function(position){
+  var node = this.head;
+  try{
+    this.checkRange(position);
+    for(var count = 0; count < position; count++){
+      node = node.next;
+    }
+  }
+  catch(e){
+    alert("Uncorrect position in 'at' function");
+    return null;
   }
 
   return node;
@@ -70,80 +81,116 @@ List.prototype.at = function(position){
 List.prototype.insertAt = function(position, data){
   var node = this.head, count = 0;
   var newNode = new Node(data);
-
-  while(count < position - 1){
-    node = node.next;
-    count++;
+  try{
+    this.checkRange(position);
+    if(position == 0){
+      this.head.previous = newNode;
+      newNode.next = this.head;
+      this.head = newNode;
+    }
+    else{
+      node = this.at(position - 1);
+      newNode.next = node.next;
+      node.next.previous = newNode;
+      node.next = newNode;  
+      newNode.previous = node;
+    }
   }
-
-  newNode.next = node.next;
-  node.next.previous = newNode;
-  node.next = newNode;  
-  newNode.previous = node;
-
+  catch(e){
+    alert("Uncorrect position in 'insertAt' function");
+    return null;
+  }
   this.length++;
 }
 
 List.prototype.deleteAt = function(position){
   var node = this.head, count = 0;
 
-  if(position === 0){
-    this.head = node.next;
-    if(this.head){
-      this.head.previous = null; 
-    } 
-    else{
-      this.tail = null;
+  try{
+    if(position === 0){
+      this.head = node.next;
+      if(this.head){
+        this.head.previous = null; 
+      } 
+      else{
+        this.tail = null;
+      }
+    }else if(position === this.length - 1){
+      this.tail = this.tail.previous;
+      this.tail.next = null;    
+    }else{
+      node = this.at(position);
+      node.previous.next = node.next;
+      node.next.previous = node.previous;
+      node = null;
     }
-  }else if(position === this.length - 1){
-    this.tail = this.tail.previous;
-    this.tail.next = null;    
-  }else{
-    while(count < position){
-      node = node.next;
-      count++;
-    }
-    node.previous.next = node.next;
-    node.next.previous = node.previous;
-    node = null;
+  }
+  catch(e){
+    alert("Uncorrect position in 'deleteAt' function");
+    return null;
   }
 
   this.length--;  
 }
 
 List.prototype.reverse = function(){
-  var count = Math.floor(this.length / 2), tData;
+  var tData;
   var tHead = this.head, tTail = this.tail;
-  while(count >= 0){
+  for(var count = Math.floor(this.length / 2); count >= 0; count--){
     tData = tHead.data;
     tHead.data = tTail.data;
     tTail.data = tData;
     tHead = tHead.next;
     tTail = tTail.previous;
-    count--;
   }
 }
 
 List.prototype.each = function(callback){
   var node = this.head;
-  var count = 0;
-  while(count < this.length){
+  for(var count = 0; count < this.length; count++){
     callback(node);
     node = node.next;
-    count++;
   }
 }
 
 List.prototype.indexOf = function(data){
-  var count = 0;
-  var positions = [];
   var node = this.head;
-  while(count < this.length){
+  for(var count = 0; count < this.length; count++){
     if(node.data == data){
-      positions.push(count);
+      return count;
     }
     node = node.next;
-    count++;
   }
-  return positions;
+  return null;
 }
+
+List.prototype.toString = function(){
+  var result = "";
+  var node = this.head;
+  for(var i = 0; i < this.length; i++){
+    (i + 1) != this.length ? result += node.data + ">" : result += node.data;    
+    node = node.next;
+  }
+  return result;
+}
+
+var list = new List();
+
+for(var i = 1; i < 6; i++){
+  list.append(i);
+}
+list.prepend(0);
+
+console.log("Start list: " + list.toString());
+console.log();
+console.log("Element at 4'th position: " + list.at(4).data);
+list.insertAt(0, 100);
+console.log("Insert '100' at 0 position: " + list.toString());
+list.deleteAt(5);
+console.log("Delete the 5'th element: " + list.toString());
+list.reverse();
+console.log("Reverse: " + list.toString());
+console.log("Index of '0': " + list.indexOf(0));
+list.each((item) => {item.data += 10})
+console.log("'Each' function(+10 to each element): " + list.toString());
+
