@@ -64,73 +64,51 @@ List.prototype.checkRange = function(position){
 
 List.prototype.at = function(position){
   var node = this.head;
-  try{
-    this.checkRange(position);
-    for(var count = 0; count < position; count++){
-      node = node.next;
-    }
+  this.checkRange(position);
+  for(var count = 0; count < position; count++){
+    node = node.next;
   }
-  catch(e){
-    alert("Uncorrect position in 'at' function");
-    return null;
-  }
-
   return node;
 }
 
 List.prototype.insertAt = function(position, data){
   var node = this.head, count = 0;
   var newNode = new Node(data);
-  try{
-    this.checkRange(position);
-    if(position == 0){
-      this.head.previous = newNode;
-      newNode.next = this.head;
-      this.head = newNode;
-    }
-    else{
-      node = this.at(position - 1);
-      newNode.next = node.next;
-      node.next.previous = newNode;
-      node.next = newNode;  
-      newNode.previous = node;
-    }
+  if(position == 0){
+    this.head.previous = newNode;
+    newNode.next = this.head;
+    this.head = newNode;
   }
-  catch(e){
-    alert("Uncorrect position in 'insertAt' function");
-    return null;
+  else{
+    node = this.at(position - 1);
+    newNode.next = node.next;
+    node.next.previous = newNode;
+    node.next = newNode;  
+    newNode.previous = node;
   }
   this.length++;
 }
 
 List.prototype.deleteAt = function(position){
   var node = this.head, count = 0;
-
-  try{
-    if(position === 0){
-      this.head = node.next;
-      if(this.head){
-        this.head.previous = null; 
-      } 
-      else{
-        this.tail = null;
-      }
-    }else if(position === this.length - 1){
-      this.tail = this.tail.previous;
-      this.tail.next = null;    
-    }else{
-      node = this.at(position);
-      node.previous.next = node.next;
-      node.next.previous = node.previous;
-      node = null;
+  if(position === 0){
+    this.head = node.next;
+    if(this.head){
+      this.head.previous = null; 
     }
+    else{
+      this.tail = null;
+    }
+  }else if(position === this.length - 1){
+    this.tail = this.tail.previous;
+    this.tail.next = null;    
+  }else{
+    node = this.at(position);
+    node.previous.next = node.next;
+    node.next.previous = node.previous;
+    node = null;
   }
-  catch(e){
-    alert("Uncorrect position in 'deleteAt' function");
-    return null;
-  }
-
-  this.length--;  
+  this.length--;
 }
 
 List.prototype.reverse = function(){
